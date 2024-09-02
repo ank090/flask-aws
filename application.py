@@ -1,7 +1,7 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, Response
 from flask_sqlalchemy import SQLAlchemy
 import os
-
+import boto3 
 application = Flask(__name__)
 
 # # Configuration for RDS MySQL database
@@ -16,6 +16,7 @@ application.config['SQLALCHEMY_DATABASE_URI'] = str(uri)
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 first_request = True
 db = SQLAlchemy(application)
+s3_client = boto3.client('s3')
 
 # Define a simple User model
 class User(db.Model):
@@ -35,7 +36,9 @@ def before_first_request():
 # CRUD routes
 @application.route('/')
 def hello():
-    return render_template('index.html')
+    obj = s3_client.get_object(Bucket='flask-aws-static', Key='index.html')
+    html_content = obj['Body'].read().decode('utf-8')
+    return Response(html_content, mimetype='text/html')
 @application.route('/users', methods=['POST'])
 def create_user():
     data = request.json
