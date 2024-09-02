@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 import os
 
@@ -35,7 +35,7 @@ def before_first_request():
 # CRUD routes
 @application.route('/')
 def hello():
-    return "Hello World!"
+    return render_template('index.html')
 @application.route('/users', methods=['POST'])
 def create_user():
     data = request.json
